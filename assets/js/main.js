@@ -13,11 +13,12 @@ const nextBtn = $('.btn-next');
 const randomBtn = $('.btn-random');
 const repeatBtn = $('.btn-repeat');
 
+const PRIVATE_PLAYER_KEYS = {};
+
 const app = {
-    currentSongIndex: 0,
     isPlaying: false,
-    isRandom: false,
-    isRepeated: false,
+    notListenedSongs: [],
+    config: JSON.parse(localStorage.getItem(PRIVATE_PLAYER_KEYS)) || {},
     songs: [
         {
             title: 'Tình Yêu Đến Sau',
@@ -86,12 +87,26 @@ const app = {
             img: './assets/img/flowers.webp',
         },
     ],
-    notListenedSongs: [],
 
     start() {
         this.renderSongs();
-        this.loadCurrentSong();
+        this.loadConfig();
         this.handleEvents();
+        this.loadCurrentSong();
+        
+        repeatBtn.classList.toggle('active', this.isRepeated);
+        randomBtn.classList.toggle('active', this.isRandom);
+    },
+
+    setConfig(key, value) {
+        this.config[key] = value;
+        localStorage.setItem(PRIVATE_PLAYER_KEYS, JSON.stringify(this.config));
+    },
+
+    loadConfig() {
+        this.currentSongIndex = this.config.currentSongIndex || 0;
+        this.isRepeated = this.config.isRepeated || false;
+        this.isRandom = this.config.isRandom || false;
     },
 
     renderSongs() {
@@ -138,10 +153,10 @@ const app = {
                 progress.value = 0;
             }        
         },
-    
 
         repeatBtn.onclick = () => {
             this.isRepeated = !this.isRepeated;
+            this.setConfig('isRepeated', this.isRepeated);
             repeatBtn.classList.toggle('active');
         }
 
@@ -156,6 +171,7 @@ const app = {
                 if (this.currentSongIndex < 0) {
                     this.currentSongIndex = this.songs.length - 1;
                 }
+                this.setConfig('currentSongIndex', this.currentSongIndex);
                 this.loadCurrentSong();
                 this.scrollIntoCurrentSongView();
             }
@@ -180,6 +196,7 @@ const app = {
                 audio.currentTime = 0;
             } else if (this.isRandom) {
                 this.handleLoadingRandomSong();
+                console.log(this.notListenedSongs);
                 this.scrollIntoCurrentSongView();
             } else {
                 this.currentSongIndex++;
@@ -187,6 +204,7 @@ const app = {
                     this.currentSongIndex = 0;
                 }
                 this.loadCurrentSong();
+                this.setConfig('currentSongIndex', this.currentSongIndex);
                 this.scrollIntoCurrentSongView();
             }
             audio.play();
@@ -196,6 +214,7 @@ const app = {
 
         randomBtn.onclick = () => {
             this.isRandom = !this.isRandom;
+            this.setConfig('isRandom', this.isRandom);
             let isActiveRandom = randomBtn.classList.contains('active');
 
             if(isActiveRandom) {
@@ -218,6 +237,7 @@ const app = {
                     alert('Coming soon');
                 } else {
                     this.currentSongIndex = songTarget.dataset.index;
+                    this.setConfig('currentSongIndex', this.currentSongIndex);
                     this.loadCurrentSong();
                     audio.play();
                 }
@@ -251,21 +271,22 @@ const app = {
         audio.load();
     },
 
-
     getRandomIndex() {
         if (this.notListenedSongs.length < 1) {
             this.initNotListenedSongs();
         } 
-
+        
         return Math.floor(Math.random() * this.notListenedSongs.length);
     },
 
     handleLoadingRandomSong() {
         let randomIndex = this.getRandomIndex();
         this.currentSongIndex = this.notListenedSongs[randomIndex];
+        this.setConfig('currentSongIndex', this.currentSongIndex);
         this.notListenedSongs.splice(randomIndex, 1);
         this.loadCurrentSong();
     },
+
     scrollIntoCurrentSongView() {
         let scrollOptions;
         let playlistSongs = $$('.playlist .song');
