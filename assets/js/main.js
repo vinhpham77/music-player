@@ -152,7 +152,11 @@ const app = {
             } else {
                 progress.value = 0;
             }        
-        },
+        }
+
+        audio.onended = () => {
+            nextBtn.click();
+        }
 
         repeatBtn.onclick = () => {
             this.isRepeated = !this.isRepeated;
@@ -250,7 +254,6 @@ const app = {
                             this.notListenedSongs.splice(notListenedSongIndex, 1);
                         }
                     }
-
 
                     this.loadCurrentSong();
                     player.classList.add('playing');
