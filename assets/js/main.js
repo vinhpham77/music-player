@@ -196,7 +196,6 @@ const app = {
                 audio.currentTime = 0;
             } else if (this.isRandom) {
                 this.handleLoadingRandomSong();
-                console.log(this.notListenedSongs);
                 this.scrollIntoCurrentSongView();
             } else {
                 this.currentSongIndex++;
@@ -236,8 +235,23 @@ const app = {
                 if (optionTarget) {
                     alert('Coming soon');
                 } else {
-                    this.currentSongIndex = songTarget.dataset.index;
+                    this.currentSongIndex = Number.parseInt(songTarget.dataset.index);
                     this.setConfig('currentSongIndex', this.currentSongIndex);
+
+                    if (this.isRandom) {
+                        if (this.notListenedSongs.length < 1) {
+                            this.initNotListenedSongs();
+                        } 
+                        let notListenedSongIndex = this.notListenedSongs.findIndex((element) => {
+                            return element === this.currentSongIndex;
+                        })
+
+                        if (notListenedSongIndex > -1) {
+                            this.notListenedSongs.splice(notListenedSongIndex, 1);
+                        }
+                    }
+
+
                     this.loadCurrentSong();
                     player.classList.add('playing');
                     this.isPlaying = true;
