@@ -239,6 +239,8 @@ const app = {
                     this.currentSongIndex = songTarget.dataset.index;
                     this.setConfig('currentSongIndex', this.currentSongIndex);
                     this.loadCurrentSong();
+                    player.classList.add('playing');
+                    this.isPlaying = true;
                     audio.play();
                 }
             }
