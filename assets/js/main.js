@@ -96,6 +96,7 @@ const app = {
         
         repeatBtn.classList.toggle('active', this.isRepeated);
         randomBtn.classList.toggle('active', this.isRandom);
+        this.cdAnimation.cancel();
     },
 
     setConfig(key, value) {
@@ -180,6 +181,8 @@ const app = {
                 this.scrollIntoCurrentSongView();
             }
             audio.play();
+            this.cdAnimation.cancel();
+            this.cdAnimation.play();
             player.classList.add('playing');
             this.isPlaying = true;
         }
@@ -187,8 +190,10 @@ const app = {
         playPauseBtn.onclick = () => {
             if (this.isPlaying) {
                 audio.pause();
+                this.cdAnimation.pause();
             } else {
                 audio.play();
+                this.cdAnimation.play();
             }
 
             player.classList.toggle('playing');
@@ -211,6 +216,8 @@ const app = {
                 this.scrollIntoCurrentSongView();
             }
             audio.play();
+            this.cdAnimation.cancel();
+            this.cdAnimation.play();
             player.classList.add('playing');
             this.isPlaying = true;
         }
@@ -258,6 +265,8 @@ const app = {
                     this.loadCurrentSong();
                     player.classList.add('playing');
                     this.isPlaying = true;
+                    this.cdAnimation.cancel();
+                    this.cdAnimation.play();
                     audio.play();
                 }
             }
@@ -324,7 +333,19 @@ const app = {
         } 
 
         currentPlaylistSong.scrollIntoView(scrollOptions);
-    }
+    },
+
+    cdAnimation: cd.animate([
+        {
+            transform: 'rotate(0)'
+        },
+        {
+            transform: 'rotate(360deg)'
+        }
+    ], {
+        duration: 10000,
+        iterations: Infinity
+    })
 }
 
 app.start();
